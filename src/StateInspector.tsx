@@ -71,7 +71,9 @@ export const StateInspector: React.FC<StateInspectorProps> = ({
             initialState,
             window.__REDUX_DEVTOOLS_EXTENSION__({
                 name: name || "React state",
-                actionsBlacklist: ["/_init", "/_teardown"]
+                // For better debugging DX, don't hide actions.
+                // actionsBlacklist: ["/_init", "/_teardown"]
+                actionsBlacklist: []
             })
         )
 
