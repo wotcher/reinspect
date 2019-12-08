@@ -37,15 +37,21 @@ export function useHookedReducer<S, A extends Action<any>>(
         return dispatch
     }, [])
 
-    useEffect(() => {
-        const teardown = store.registerHookedReducer<S, A>(
-            reducer,
-            initialReducerState,
-            reducerId
-        )
+    // Register the hooked reducer immediately, don't wait for this component to mount.
+    const teardown = useMemo(
+        () =>
+            store.registerHookedReducer<S, A>(
+                reducer,
+                initialReducerState,
+                reducerId
+            ),
+        []
+    )
 
+    // Subscribe to state changes immediately, don't wait for this component to mount.
+    const unsubscribe = useMemo(() => {
         let lastReducerState = localState
-        const unsubscribe = store.subscribe(() => {
+        return store.subscribe(() => {
             const storeState: any = store.getState()
             const reducerState = storeState[reducerId]
 
@@ -55,7 +61,9 @@ export function useHookedReducer<S, A extends Action<any>>(
 
             lastReducerState = reducerState
         })
+    }, [])
 
+    useEffect(() => {
         return () => {
             unsubscribe()
             teardown()
